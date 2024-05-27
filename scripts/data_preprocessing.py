@@ -24,23 +24,27 @@ class DataPreprocessing:
         # Handle missing values
         self.train.fillna(0, inplace=True)
         self.test.fillna(0, inplace=True)
+
         # Extract datetime features
         self.train['Date'] = pd.to_datetime(self.train['Date'])
         self.test['Date'] = pd.to_datetime(self.test['Date'])
-        self.train['Year'] = self.train['Date'].dt.year
-        self.train['Month'] = self.train['Date'].dt.month
-        self.train['Day'] = self.train['Date'].dt.day
-        self.train['WeekOfYear'] = self.train['Date'].dt.isocalendar().week
-        self.test['Year'] = self.test['Date'].dt.year
-        self.test['Month'] = self.test['Date'].dt.month
-        self.test['Day'] = self.test['Date'].dt.day
-        self.test['WeekOfYear'] = self.test['Date'].dt.isocalendar().week
+        
+        for df in [self.train, self.test]:
+            df['Year'] = df['Date'].dt.year
+            df['Month'] = df['Date'].dt.month
+            df['Day'] = df['Date'].dt.day
+            df['WeekOfYear'] = df['Date'].dt.isocalendar().week
+        
         self.logger.info("Preprocessing done")
 
     def scale_data(self):
         scaler = StandardScaler()
         self.train[['Sales', 'Customers']] = scaler.fit_transform(self.train[['Sales', 'Customers']])
-        self.test[['Sales', 'Customers']] = scaler.transform(self.test[['Sales', 'Customers']])
+        
+        # Only scale 'Customers' in test since 'Sales' is not available
+        self.test['Customers'] = 0  # Placeholder, should be treated properly in actual usage
+        self.test[['Customers']] = scaler.transform(self.test[['Customers']])
+        
         self.logger.info("Data scaling done")
 
     def save_processed_data(self):
