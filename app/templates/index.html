@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rossmann Sales Forecasting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Rossmann Sales Forecasting</h1>
+        <form action="/predict_ml" method="post">
+            <input type="text" name="data" placeholder="Enter data for ML model">
+            <button type="submit">Predict ML</button>
+        </form>
+        <form action="/predict_dl" method="post">
+            <input type="text" name="data" placeholder="Enter data for DL model">
+            <button type="submit">Predict DL</button>
+        </form>
+    </div>
+</body>
+</html>
