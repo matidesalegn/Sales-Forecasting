@@ -10,8 +10,12 @@ class DataPreprocessing:
         self.logger = logging.getLogger(__name__)
 
     def load_data(self):
-        self.train = pd.read_csv(self.train_path)
-        self.test = pd.read_csv(self.test_path)
+        # Specify dtype to handle mixed type warning
+        dtype_spec = {
+            'StateHoliday': str,
+        }
+        self.train = pd.read_csv(self.train_path, dtype=dtype_spec)
+        self.test = pd.read_csv(self.test_path, dtype=dtype_spec)
         self.store = pd.read_csv(self.store_path)
         self.logger.info("Data loaded successfully")
 
@@ -24,26 +28,37 @@ class DataPreprocessing:
         # Handle missing values
         self.train.fillna(0, inplace=True)
         self.test.fillna(0, inplace=True)
-
+        
         # Extract datetime features
         self.train['Date'] = pd.to_datetime(self.train['Date'])
         self.test['Date'] = pd.to_datetime(self.test['Date'])
         
-        for df in [self.train, self.test]:
-            df['Year'] = df['Date'].dt.year
-            df['Month'] = df['Date'].dt.month
-            df['Day'] = df['Date'].dt.day
-            df['WeekOfYear'] = df['Date'].dt.isocalendar().week
+        self.train['Year'] = self.train['Date'].dt.year
+        self.train['Month'] = self.train['Date'].dt.month
+        self.train['Day'] = self.train['Date'].dt.day
+        self.train['WeekOfYear'] = self.train['Date'].dt.isocalendar().week
         
+        self.test['Year'] = self.test['Date'].dt.year
+        self.test['Month'] = self.test['Date'].dt.month
+        self.test['Day'] = self.test['Date'].dt.day
+        self.test['WeekOfYear'] = self.test['Date'].dt.isocalendar().week
         self.logger.info("Preprocessing done")
 
     def scale_data(self):
-        scaler = StandardScaler()
-        self.train[['Sales', 'Customers']] = scaler.fit_transform(self.train[['Sales', 'Customers']])
+        sales_scaler = StandardScaler()
+        customers_scaler = StandardScaler()
         
-        # Only scale 'Customers' in test since 'Sales' is not available
-        self.test['Customers'] = 0  # Placeholder, should be treated properly in actual usage
-        self.test[['Customers']] = scaler.transform(self.test[['Customers']])
+        # Fit and transform the scaler on 'Sales' and 'Customers' in train data
+        self.train['Sales'] = sales_scaler.fit_transform(self.train[['Sales']])
+        self.train['Customers'] = customers_scaler.fit_transform(self.train[['Customers']])
+        
+        # Transform 'Customers' in the test data
+        if 'Customers' in self.test.columns:
+            self.test['Customers'] = customers_scaler.transform(self.test[['Customers']])
+        else:
+            # If 'Customers' column does not exist, create a placeholder and scale it
+            self.test['Customers'] = 0  # Placeholder
+            self.test['Customers'] = customers_scaler.transform(self.test[['Customers']].values.reshape(-1, 1))
         
         self.logger.info("Data scaling done")
 

@@ -1,4 +1,3 @@
-# EDA Analysis
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -30,8 +29,10 @@ class EDA:
         plt.show()
 
     def plot_correlation_heatmap(self):
+        # Exclude 'Date' column before computing correlation matrix
+        numeric_data = self.data.drop(columns=['Date']) # Exclude the 'Date' column
         plt.figure(figsize=(10, 8))
-        sns.heatmap(self.data.corr(), annot=True, cmap='coolwarm')
+        sns.heatmap(numeric_data.corr(), annot=True, cmap='coolwarm')
         plt.title('Feature Correlation Heatmap')
         plt.show()
 
