@@ -6,10 +6,10 @@ seaborn
 prophet
 tensorflow
 torch
-statsmodels
-Cython
-convertdate
-lunarcalendar
-holidays
-fbprophet
-flask
+# statsmodels
+# Cython
+# convertdate
+# lunarcalendar
+# holidays
+# fbprophet
+# flask
