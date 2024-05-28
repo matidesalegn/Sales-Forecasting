@@ -1,6 +1,7 @@
-# data_quality.py
-
+import logging
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 def detect_outliers(df):
     """
@@ -11,8 +12,11 @@ def detect_outliers(df):
         dict: Dictionary containing outlier information for each numerical feature.
     """
     outliers = {}
+    # Exclude binary and categorical features
     numerical_features = df.select_dtypes(include=['int64', 'float64']).columns
-    
+    exclude_features = ['Open', 'Promo', 'StateHoliday', 'SchoolHoliday']
+    numerical_features = [feature for feature in numerical_features if feature not in exclude_features]
+
     for feature in numerical_features:
         Q1 = df[feature].quantile(0.25)
         Q3 = df[feature].quantile(0.75)
@@ -28,5 +32,6 @@ def detect_outliers(df):
             'num_outliers': len(outlier_indices),
             'outlier_indices': outlier_indices
         }
+        logger.info(f"Outliers detected for {feature}: {outliers[feature]['num_outliers']} outliers")
     
     return outliers
