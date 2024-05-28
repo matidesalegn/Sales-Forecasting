@@ -1,5 +1,11 @@
-def preprocess_data(df, store_df):
+import pandas as pd
+import logging
 
+# Set up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)  # Set logging level to INFO
+
+def preprocess_data(df, store_df):
     # Merge with store data
     df = pd.merge(df, store_df, how='left', on='Store')
     
