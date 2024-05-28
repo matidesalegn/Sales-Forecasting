@@ -1,19 +1,13 @@
-import pandas as pd
-import logging
-
-logger = logging.getLogger(__name__)
-
 def preprocess_data(df, store_df):
 
     # Merge with store data
     df = pd.merge(df, store_df, how='left', on='Store')
-
-    # Merge with store data
-    df = pd.merge(df, store_df, on='Store', how='left')
     
     # Handle missing values for 'Open' column
     if 'Open' in df.columns:
+        logger.info("Number of missing values in 'Open' column before filling: %d", df['Open'].isnull().sum())
         df['Open'].fillna(1, inplace=True)  # Assume open if not specified
+        logger.info("Number of missing values in 'Open' column after filling: %d", df['Open'].isnull().sum())
     
     # Fill missing values
     df['CompetitionDistance'].fillna(df['CompetitionDistance'].median(), inplace=True)
