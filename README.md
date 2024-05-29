@@ -23,7 +23,7 @@ The primary objective of this analysis is to understand customer purchasing beha
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/rossmann-sales-analysis.git
+   git clone https://github.com/matidesalegn/rossmann-sales-analysis.git
    ```
 2. Install the required libraries:
    ```bash
