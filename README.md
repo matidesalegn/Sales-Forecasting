@@ -35,8 +35,8 @@ The primary objective of this analysis is to understand customer purchasing beha
    ```
 
 ## Contributors
-- [Your Name](https://github.com/matidesalegn)
-- [Collaborator 1](https://github.com/MatiwosD)
+- [Matiwos Desalegn](https://github.com/matidesalegn)
+- [Matiwos Desalegn second account](https://github.com/MatiwosD)
 
 
 
