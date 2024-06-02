@@ -6,15 +6,19 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from sklearn.preprocessing import StandardScaler
+import os
 
 main = Blueprint('main', __name__)
 
 # Load the trained models
-rf_model = joblib.load('../models/model-2024-06-01-10-36-59.pkl')
-lstm_model = tf.keras.models.load_model('../models/lstm_model.h5')
+base_dir = os.path.dirname(os.path.abspath(__file__))
+rf_model_path = os.path.join(base_dir, '..', 'models', 'model-2024-06-01-10-36-59.pkl')
+lstm_model_path = os.path.join(base_dir, '..', 'models', 'lstm_model.h5')
+scaler_path = os.path.join(base_dir, '..', 'models', 'scaler.pkl')
 
-# Load scalers (if used during preprocessing)
-scaler = joblib.load('../models/scaler.pkl')  # Ensure to save scaler during training
+rf_model = joblib.load(rf_model_path)
+lstm_model = tf.keras.models.load_model(lstm_model_path)
+scaler = joblib.load(scaler_path)  # Ensure to save scaler during training
 
 @main.route('/')
 def index():
