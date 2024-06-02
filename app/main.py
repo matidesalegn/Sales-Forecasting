@@ -1,35 +1,53 @@
 # app/main.py
-
-from flask import Flask, request, jsonify, render_template
+from flask import Blueprint, render_template, request
 import joblib
 import tensorflow as tf
+import numpy as np
 import pandas as pd
+from datetime import datetime
+from sklearn.preprocessing import StandardScaler
 
-app = Flask(__name__)
+main = Blueprint('main', __name__)
 
-# Load the models
-ml_model = joblib.load('data/models/model-<timestamp>.pkl')
-dl_model = tf.keras.models.load_model('data/models/lstm_model-<timestamp>.h5')
+# Load the trained models
+rf_model = joblib.load('../models/model-2024-06-01-10-36-59.pkl')
+lstm_model = tf.keras.models.load_model('../models/lstm_model.h5')
 
-@app.route('/')
-def home():
+# Load scalers (if used during preprocessing)
+scaler = joblib.load('../models/scaler.pkl')  # Ensure to save scaler during training
+
+@main.route('/')
+def index():
     return render_template('index.html')
 
-@app.route('/predict_ml', methods=['POST'])
-def predict_ml():
-    data = request.get_json(force=True)
-    data_df = pd.DataFrame(data)
-    prediction = ml_model.predict(data_df)
-    return jsonify(prediction.tolist())
+@main.route('/predict', methods=['POST'])
+def predict():
+    date_input = request.form.get('date')
+    date = pd.to_datetime(date_input)
 
-@app.route('/predict_dl', methods=['POST'])
-def predict_dl():
-    data = request.get_json(force=True)
-    data_df = pd.DataFrame(data)
-    scaled_data = scaler.transform(data_df)
-    X = scaled_data.reshape((scaled_data.shape[0], scaled_data.shape[1], 1))
-    prediction = dl_model.predict(X)
-    return jsonify(prediction.tolist())
+    # Feature engineering for the input date
+    features = {
+        'Year': date.year,
+        'Month': date.month,
+        'Day': date.day,
+        'WeekOfYear': date.isocalendar()[1],
+        'Weekday': date.weekday(),
+        'IsWeekend': date.weekday() >= 5,
+        'MonthStart': date.day <= 10,
+        'MonthMid': 10 < date.day <= 20,
+        'MonthEnd': date.day > 20,
+        # Add other relevant features used during model training
+    }
+    features_df = pd.DataFrame([features])
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    # Scale features if necessary
+    scaled_features = scaler.transform(features_df)
+
+    # Random Forest Prediction
+    rf_prediction = rf_model.predict(scaled_features)[0]
+
+    # LSTM Prediction
+    lstm_features = np.array(scaled_features).reshape((1, scaled_features.shape[1], 1))
+    lstm_prediction = lstm_model.predict(lstm_features)[0][0]
+
+    return render_template('result.html', date=date_input, rf_prediction=rf_prediction, lstm_prediction=lstm_prediction)
